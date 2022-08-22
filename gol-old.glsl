@@ -23,24 +23,23 @@ void main() {
 	neighborPixels += imageLoad(target_image, index + ivec2(0, -1));
 	neighborPixels += imageLoad(target_image, index + ivec2(-1, -1));
 
-	imageStore(target_image, index, imageLoad(target_image, index - ivec2(1, 1)));
 	// Add current pixel for reason
 	//neighborPixels += currentPixel;
 
-//  	if (currentPixel.r > 0.5) {
-//  		if (neighborPixels.r > 1.5 && neighborPixels.r < 3.5) { // Between 2 and 3
-//  			imageStore(target_image, index, vec4(1, 1, 1, 1));
-//  		}
-//  		else {
-//  			imageStore(target_image, index, vec4(0, 0, 0, 1));
-//  		}
-//  	}
-//  	else {
-//  		if (neighborPixels.r > 2.5 && neighborPixels.r < 3.5) { // == 3
-//  			imageStore(target_image, index, vec4(1, 1, 1, 1));
-//  		}
-//  		else {
-//  			imageStore(target_image, index, vec4(0, 0, 0, 1));
-//  		}
-//  	}
+  	if (currentPixel.r > 0.5) {
+  		if (neighborPixels.r > 1.5 && neighborPixels.r < 3.5) { // Between 2 and 3
+  			imageStore(target_image, index, vec4(1, 1, 1, 1));
+  		}
+  		else {
+  			imageStore(target_image, index, vec4(0, 0, 0, 1));
+  		}
+  	}
+  	else {
+  		if (neighborPixels.r > 2.5 && neighborPixels.r < 3.5) { // == 3
+  			imageStore(target_image, index, vec4(1, 1, 1, 1));
+  		}
+  		else {
+  			imageStore(target_image, index, vec4(0, 0, 0, 1));
+  		}
+  	}
 }

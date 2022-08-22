@@ -14,3 +14,9 @@ config/name="GameOfLife"
 run/main_scene="res://game_of_life.tscn"
 config/features=PackedStringArray("4.0", "Vulkan Clustered")
 config/icon="res://icon.png"
+
+[display]
+
+window/size/viewport_width=512
+window/size/viewport_height=512
+window/stretch/mode="canvas_items"

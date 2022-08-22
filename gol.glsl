@@ -4,7 +4,7 @@
 layout(local_size_x = 8, local_size_y = 8) in;
 
 layout(set = 0, binding = 0, rgba32f) uniform image2D cells_in;
-// layout(r8ui, binding = 1) uniform uimage2D cells_out;
+layout(set = 0, binding = 1, rgba32f) uniform image2D cells_out;
 
 uint updateCell(ivec2 cell_idx) {
   float current_status = imageLoad(cells_in, cell_idx).x;
@@ -19,7 +19,7 @@ uint updateCell(ivec2 cell_idx) {
   alive_cells += imageLoad(cells_in, cell_idx + ivec2(1, 0)).x;
   alive_cells += imageLoad(cells_in, cell_idx + ivec2(1, 1)).x;
 
-  return uint(current_status == 0.0 && alive_cells == 3.0) + uint(current_status == 1.0 && alive_cells > 1.0 && alive_cells < 4.0);
+  return uint(current_status < 0.5 && alive_cells > 2.5 && alive_cells < 3.5) + uint(current_status >= 0.5 && alive_cells > 1.5 && alive_cells < 3.5);
 }
 
 void main() {
@@ -27,5 +27,5 @@ void main() {
 
   uint next_status = updateCell(gidx);
 
-  imageStore(cells_in, gidx, uvec4(next_status));
+  imageStore(cells_out, gidx, uvec4(uvec3(next_status), 1));
 }
