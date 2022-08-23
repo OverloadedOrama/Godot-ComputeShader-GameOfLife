@@ -1,7 +1,7 @@
 extends TextureRect
 
-
 var rd: RenderingDevice
+var shader_file: RDShaderFile = preload("res://gol.glsl")
 var shader: RID
 var texture_read: RID
 var texture_write: RID
@@ -18,7 +18,6 @@ func _ready() -> void:
 	rd = RenderingServer.create_local_rendering_device()
 
 	# Create shader and pipeline
-	var shader_file: RDShaderFile = preload("res://gol.glsl")
 	var shader_spirv := shader_file.get_spirv()
 	shader = rd.shader_create_from_spirv(shader_spirv)
 	pipeline = rd.compute_pipeline_create(shader)
@@ -36,8 +35,10 @@ func _ready() -> void:
 	tex_read_format.height = image_size.y
 	tex_read_format.depth = 4
 	tex_read_format.format = RenderingDevice.DATA_FORMAT_R8G8B8A8_UNORM
-	tex_read_format.usage_bits = RenderingDevice.TEXTURE_USAGE_STORAGE_BIT\
-	| RenderingDevice.TEXTURE_USAGE_CAN_UPDATE_BIT
+	tex_read_format.usage_bits = (
+		RenderingDevice.TEXTURE_USAGE_STORAGE_BIT
+		| RenderingDevice.TEXTURE_USAGE_CAN_UPDATE_BIT
+	)
 	var tex_view := RDTextureView.new()
 	texture_read = rd.texture_create(tex_read_format, tex_view, [read_data])
 
@@ -56,9 +57,11 @@ func _ready() -> void:
 	tex_write_format.height = image_size.y
 	tex_write_format.depth = 4
 	tex_write_format.format = RenderingDevice.DATA_FORMAT_R8G8B8A8_UNORM
-	tex_write_format.usage_bits = RenderingDevice.TEXTURE_USAGE_STORAGE_BIT\
-	| RenderingDevice.TEXTURE_USAGE_CAN_UPDATE_BIT\
-	| RenderingDevice.TEXTURE_USAGE_CAN_COPY_FROM_BIT
+	tex_write_format.usage_bits = (
+		RenderingDevice.TEXTURE_USAGE_STORAGE_BIT
+		| RenderingDevice.TEXTURE_USAGE_CAN_UPDATE_BIT
+		| RenderingDevice.TEXTURE_USAGE_CAN_COPY_FROM_BIT
+	)
 	texture_write = rd.texture_create(tex_write_format, tex_view, [write_data])
 
 	# Create uniform set using the write texture
