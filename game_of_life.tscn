@@ -1,24 +1,12 @@
 [gd_scene load_steps=3 format=3 uid="uid://bojvd7col3t4k"]
 
-[ext_resource type="Texture2D" uid="uid://dfj80jwg2ypuv" path="res://glider.png" id="1_ccytm"]
+[ext_resource type="Texture2D" uid="uid://dj5vnphrdcq2h" path="res://gameoflife.jpg" id="1_1rj1s"]
 [ext_resource type="Script" path="res://GameOfLife.gd" id="1_wr0c7"]
 
 [node name="GameOfLife" type="TextureRect"]
 texture_filter = 1
 offset_right = 512.0
 offset_bottom = 512.0
-texture = ExtResource("1_ccytm")
+texture = ExtResource("1_1rj1s")
 stretch_mode = 4
 script = ExtResource("1_wr0c7")
-
-[node name="TextureRect" type="TextureRect" parent="."]
-visible = false
-offset_left = 511.0
-offset_right = 1018.0
-offset_bottom = 507.0
-texture = ExtResource("1_ccytm")
-
-[node name="Timer" type="Timer" parent="."]
-wait_time = 0.319
-
-[connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]

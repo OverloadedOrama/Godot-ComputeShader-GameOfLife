@@ -3,8 +3,8 @@ extends TextureRect
 
 var rd: RenderingDevice
 var shader: RID
-var texture_read_buffer: RID
-var texture_write_buffer: RID
+var texture_read: RID
+var texture_write: RID
 var uniform_set: RID
 var pipeline: RID
 var read_data: PackedByteArray
@@ -27,8 +27,8 @@ func _ready() -> void:
 	og_image.convert(image_format)
 	image_size = og_image.get_size()
 
-	# Initialize read data
 	# Data for compute shaders has to come as an array of bytes
+	# Initialize read data
 	read_data = og_image.get_data()
 
 	var tex_read_format := RDTextureFormat.new()
@@ -39,13 +39,13 @@ func _ready() -> void:
 	tex_read_format.usage_bits = RenderingDevice.TEXTURE_USAGE_STORAGE_BIT\
 	| RenderingDevice.TEXTURE_USAGE_CAN_UPDATE_BIT
 	var tex_view := RDTextureView.new()
-	texture_read_buffer = rd.texture_create(tex_read_format, tex_view, [read_data])
+	texture_read = rd.texture_create(tex_read_format, tex_view, [read_data])
 
-	# Create uniform set using the storage buffer
+	# Create uniform set using the read texture
 	var read_uniform := RDUniform.new()
 	read_uniform.uniform_type = RenderingDevice.UNIFORM_TYPE_IMAGE
 	read_uniform.binding = 0
-	read_uniform.add_id(texture_read_buffer)
+	read_uniform.add_id(texture_read)
 
 	# Initialize write data
 	write_data = PackedByteArray()
@@ -59,16 +59,15 @@ func _ready() -> void:
 	tex_write_format.usage_bits = RenderingDevice.TEXTURE_USAGE_STORAGE_BIT\
 	| RenderingDevice.TEXTURE_USAGE_CAN_UPDATE_BIT\
 	| RenderingDevice.TEXTURE_USAGE_CAN_COPY_FROM_BIT
-	texture_write_buffer = rd.texture_create(tex_write_format, tex_view, [write_data])
+	texture_write = rd.texture_create(tex_write_format, tex_view, [write_data])
 
-	# Create uniform set using the storage buffer
+	# Create uniform set using the write texture
 	var write_uniform := RDUniform.new()
 	write_uniform.uniform_type = RenderingDevice.UNIFORM_TYPE_IMAGE
 	write_uniform.binding = 1
-	write_uniform.add_id(texture_write_buffer)
+	write_uniform.add_id(texture_write)
 
 	uniform_set = rd.uniform_set_create([read_uniform, write_uniform], shader, 0)
-	compute()
 
 
 func _process(_delta: float) -> void:
@@ -76,27 +75,20 @@ func _process(_delta: float) -> void:
 
 
 func compute() -> void:
-#	rd.buffer_update(texture_read_buffer, 0, read_data.size(), read_data)
-	rd.texture_update(texture_read_buffer, 0, read_data)
+	rd.texture_update(texture_read, 0, read_data)
 	# Start compute list to start recording our compute commands
 	var compute_list := rd.compute_list_begin()
 	# Bind the pipeline, this tells the GPU what shader to use
 	rd.compute_list_bind_compute_pipeline(compute_list, pipeline)
 	# Binds the uniform set with the data we want to give our shader
 	rd.compute_list_bind_uniform_set(compute_list, uniform_set, 0)
-#	rd.compute_list_dispatch(compute_list, 2, 1, 1)  # Dispatch 1x1x1 (XxYxZ) work groups
-	rd.compute_list_dispatch(compute_list, image_size.x, image_size.y, 4)  # Dispatch 1x1x1 (XxYxZ) work groups
-	#rd.compute_list_add_barrier(compute_list)
+	rd.compute_list_dispatch(compute_list, image_size.x, image_size.y, 1)
 	rd.compute_list_end()  # Tell the GPU we are done with this compute task
 	rd.submit()  # Force the GPU to start our commands
 	rd.sync()  # Force the CPU to wait for the GPU to finish with the recorded commands
 
-	# Now we can grab our data from the storage buffer
-	read_data = rd.texture_get_data(texture_write_buffer, 0)
+	# Now we can grab our data from the texture
+	read_data = rd.texture_get_data(texture_write, 0)
 	var image := Image.new()
 	image.create_from_data(image_size.x, image_size.y, false, image_format, read_data)
 	texture = ImageTexture.create_from_image(image)
-
-
-func _on_timer_timeout() -> void:
-	compute()

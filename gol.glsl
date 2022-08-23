@@ -24,8 +24,6 @@ uint updateCell(ivec2 cell_idx) {
 
 void main() {
   ivec2 gidx = ivec2(gl_GlobalInvocationID.xy);
-
   uint next_status = updateCell(gidx);
-
   imageStore(cells_out, gidx, uvec4(uvec3(next_status), 1));
 }
