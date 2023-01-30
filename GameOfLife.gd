@@ -16,6 +16,10 @@ var image_format := Image.FORMAT_RGBA8
 func _ready() -> void:
 	# We will be using our own RenderingDevice to handle the compute commands
 	rd = RenderingServer.create_local_rendering_device()
+	if not rd:
+		set_process(false)
+		print("Compute shaders are not available")
+		return
 
 	# Create shader and pipeline
 	var shader_spirv := shader_file.get_spirv()
@@ -92,6 +96,5 @@ func compute() -> void:
 
 	# Now we can grab our data from the texture
 	read_data = rd.texture_get_data(texture_write, 0)
-	var image := Image.new()
-	image.create_from_data(image_size.x, image_size.y, false, image_format, read_data)
+	var image := Image.create_from_data(image_size.x, image_size.y, false, image_format, read_data)
 	texture = ImageTexture.create_from_image(image)
